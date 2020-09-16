@@ -15,7 +15,7 @@ exports.getShopView = (req, res, next) => {
 };
 
 exports.getAddProductView = (req, res, next) => {
-    res.render('admin/add-product', {
+    res.render('admin/add-edit-product', {
         pageTitle: 'Add Product',
         path: '/admin/add-product',
         formsCSS: true,
@@ -57,4 +57,8 @@ exports.deleteProduct = (req, res, next) => {
 
 exports.editProduct = (req, res, next) => {
     const productId = +req.params.id;
+    res.render('admin/add-edit-product', {
+        path: '/admin/add-product',
+        pageTitle: 'Edit product',
+    });
 };
