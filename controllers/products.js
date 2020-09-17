@@ -20,7 +20,8 @@ exports.getAddProductView = (req, res, next) => {
         path: '/admin/add-product',
         formsCSS: true,
         productCSS: true,
-        activeAddProduct: true
+        activeAddProduct: true,
+        editMode: false,
     });
 };
 
@@ -55,10 +56,28 @@ exports.deleteProduct = (req, res, next) => {
         });
 };
 
+exports.getEditProductView = (req, res, next) => {
+    const productId = +req.params.id;
+    Product.getProductById(productId).then(
+        product => {
+            res.render('admin/add-edit-product', {
+                path: '/admin/add-product',
+                pageTitle: 'Edit product',
+                editMode: true,
+                product: product,
+            });
+        }
+    );
+};
+
 exports.editProduct = (req, res, next) => {
     const productId = +req.params.id;
-    res.render('admin/add-edit-product', {
-        path: '/admin/add-product',
-        pageTitle: 'Edit product',
-    });
+    const title = req.body.title;
+    const imageUrl = req.body.imageUrl;
+    const price = +req.body.price;
+    const description = req.body.description;
+
+    Product.editProduct(productId, title, imageUrl, price, description).then(
+        saved => res.redirect('/admin/products')
+    );
 };

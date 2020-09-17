@@ -41,8 +41,24 @@ class Product {
 
     async saveProduct() {
         const products = await readProductsFile();
-        products.push(this);
-        const saved = await writeProductsFile(products);
+        const productsUpdated = [...products];
+
+        productsUpdated.push(this);
+
+        const saved = await writeProductsFile(productsUpdated);
+        return saved;
+    }
+
+    static async saveProduct(product) {
+        const products = await readProductsFile();
+        const productsUpdated = [...products];
+
+        if (product) {
+            const productIndex = products.findIndex((value) => value.id === product.id);
+            productsUpdated[productIndex] = product;
+        }
+
+        const saved = await writeProductsFile(productsUpdated);
         return saved;
     }
 
@@ -51,11 +67,32 @@ class Product {
         return products;
     }
 
+    static async getProductById(id) {
+        const products = await readProductsFile();
+        const product = products.find((product) => product.id === id);
+        return product;
+
+    }
+
     static async deleteProduct(id) {
         const products = await readProductsFile();
         const productsUpdated = products.filter(product => product.id !== id);
         const deleted = await writeProductsFile(productsUpdated);
         return deleted;
+    }
+
+    static async editProduct(id, title, imageUrl, price, description) {
+        this.getProductById(id).then(
+            product => {
+                product.title = title;
+                product.imageUrl = imageUrl;
+                product.price = price;
+                product.description = description;
+                return this.saveProduct(product);
+            }
+        ).then(
+            saved => saved
+        );
     }
 
 }
