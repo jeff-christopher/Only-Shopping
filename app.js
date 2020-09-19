@@ -1,17 +1,31 @@
+/**
+ * Core node packages 
+ */
 const path = require('path');
 
+/**
+ * Third party Node packages
+ */
 const express = require('express');
 const bodyParser = require('body-parser');
-const { Sequilize } = require('sequelize');
-const mysql = require('./util/database');
+const sequelize = require('./util/database');
 
+/**
+ * Express app initalization
+ */
 const app = express();
 
+/**
+ * Html templating engine configuration
+ */
 app.set('view engine', 'ejs');
 app.set('views', 'views');
 
 const errorController = require('./controllers/error');
 
+/**
+ * My routes
+ */
 const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
 
@@ -22,14 +36,18 @@ app.use('/admin', adminRoutes);
 app.use(shopRoutes);
 app.use(errorController.get404View);
 
+/**
+ * Sequilize sync
+ */
 
-mysql.authenticate().then(
-    (value) => {
-        console.log('Succesfully Connected to DB.');
-        app.listen(3000);
-    }
-).catch(
-    (error) => {
-        console.log('Something went work whiler trying to connect to DB.', error);
-    }
-)
+sequelize.sync()
+    .then(
+        response => {
+            app.listen(3000);
+        }
+    )
+    .catch(
+        error => {
+            console.log(error);
+        }
+    );

@@ -1,7 +1,7 @@
 const Product = require('../models/product');
 
 exports.getShopView = (req, res, next) => {
-    Product.fetchAllProducts()
+    Product.findAll()
         .then((products) => {
             res.render('shop', {
                 prods: products,
@@ -11,6 +11,9 @@ exports.getShopView = (req, res, next) => {
                 activeShop: true,
                 productCSS: true
             });
+        })
+        .catch(error => {
+            console.log(error);
         });
 };
 
@@ -31,21 +34,29 @@ exports.addProduct = (req, res, next) => {
     const price = +req.body.price;
     const description = req.body.description;
 
-    const product = new Product(title, imageUrl, price, description);
-    product.saveProduct()
-        .then((saved) => {
+    Product.create({
+            title: title,
+            imageUrl: imageUrl,
+            price: price,
+            description: description,
+        })
+        .then(saved => {
             res.redirect('/admin/products');
+        })
+        .catch(error => {
+            console.log(error);
         });
 };
 
 exports.getProductsView = (req, res, next) => {
-    Product.fetchAllProducts().then(products => {
-        res.render('admin/products', {
-            prods: products,
-            pageTitle: 'Admin Products',
-            path: '/admin/products',
+    Product.findAll()
+        .then(products => {
+            res.render('admin/products', {
+                prods: products,
+                pageTitle: 'Admin Products',
+                path: '/admin/products',
+            });
         });
-    });
 };
 
 exports.deleteProduct = (req, res, next) => {
