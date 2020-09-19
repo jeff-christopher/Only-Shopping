@@ -2,6 +2,8 @@ const path = require('path');
 
 const express = require('express');
 const bodyParser = require('body-parser');
+const { Sequilize } = require('sequelize');
+const mysql = require('./util/database');
 
 const app = express();
 
@@ -20,4 +22,14 @@ app.use('/admin', adminRoutes);
 app.use(shopRoutes);
 app.use(errorController.get404View);
 
-app.listen(3000);
+
+mysql.authenticate().then(
+    (value) => {
+        console.log('Succesfully Connected to DB.');
+        app.listen(3000);
+    }
+).catch(
+    (error) => {
+        console.log('Something went work whiler trying to connect to DB.', error);
+    }
+)
