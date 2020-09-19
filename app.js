@@ -2,8 +2,13 @@ const path = require('path');
 
 const express = require('express');
 const bodyParser = require('body-parser');
-const { Sequilize } = require('sequelize');
 const mysql = require('./util/database');
+
+/**
+ * Models
+ */
+
+const Product = require('./models/product');
 
 const app = express();
 
@@ -14,6 +19,7 @@ const errorController = require('./controllers/error');
 
 const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
+const sequelize = require('./util/database');
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
@@ -23,13 +29,15 @@ app.use(shopRoutes);
 app.use(errorController.get404View);
 
 
-mysql.authenticate().then(
-    (value) => {
-        console.log('Succesfully Connected to DB.');
-        app.listen(3000);
-    }
-).catch(
-    (error) => {
-        console.log('Something went work whiler trying to connect to DB.', error);
-    }
-)
+sequelize.sync()
+    .then(
+        response => {
+            console.log(response);
+            app.listen(3000);
+        }
+    )
+    .catch(
+        error => {
+            console.log(error);
+        }
+    );
