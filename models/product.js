@@ -20,6 +20,10 @@ const Product = sequilize.define('Product', {
         type: DataTypes.DECIMAL,
         allowNull: false,
     },
+    description: {
+        type: DataTypes.STRING,
+        allowNull: false,
+    }
 });
 
 module.exports = Product;
