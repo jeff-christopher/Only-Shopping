@@ -69,7 +69,7 @@ exports.deleteProduct = (req, res, next) => {
 
 exports.getEditProductView = (req, res, next) => {
     const productId = +req.params.id;
-    Product.getProductById(productId).then(
+    Product.findByPk(productId).then(
         product => {
             res.render('admin/add-edit-product', {
                 path: '/admin/add-product',
@@ -77,6 +77,10 @@ exports.getEditProductView = (req, res, next) => {
                 editMode: true,
                 product: product,
             });
+        }
+    ).catch(
+        error => {
+            console.log(error);
         }
     );
 };
@@ -88,7 +92,22 @@ exports.editProduct = (req, res, next) => {
     const price = +req.body.price;
     const description = req.body.description;
 
-    Product.editProduct(productId, title, imageUrl, price, description).then(
-        saved => res.redirect('/admin/products')
+    Product.update({
+        title: title,
+        imageUrl: imageUrl,
+        price: price,
+        description: description,
+    }, {
+        where: {
+            id: productId,
+        }
+    }).then(
+        response => {
+            res.redirect('/admin/products');
+        }
+    ).catch(
+        error => {
+            console.log(error);
+        }
     );
 };

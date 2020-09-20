@@ -40,7 +40,7 @@ app.use(errorController.get404View);
  * Sequilize sync
  */
 
-sequelize.sync()
+sequelize.sync({ force: false })
     .then(
         response => {
             app.listen(3000);
