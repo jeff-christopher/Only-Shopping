@@ -61,10 +61,19 @@ exports.getProductsView = (req, res, next) => {
 
 exports.deleteProduct = (req, res, next) => {
     const productId = +req.params.id;
-    Product.deleteProduct(productId)
-        .then((deleted) => {
+    Product.destroy({
+        where: {
+            id: productId,
+        }
+    }).then(
+        response => {
             res.redirect('/admin/products');
-        });
+        }
+    ).catch(
+        error => {
+            console.log(error);
+        }
+    );
 };
 
 exports.getEditProductView = (req, res, next) => {
