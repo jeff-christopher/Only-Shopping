@@ -111,3 +111,30 @@ exports.editProduct = (req, res, next) => {
         }
     );
 };
+
+exports.productsList = async(req, res, next) => {
+    try {
+        const products = await Product.findAll();
+        res.render('shop/product-list', {
+            pageTitle: 'Products',
+            path: '/products',
+            products: products,
+        });
+    } catch (error) {
+        console.log(error);
+    }
+};
+
+exports.productDetails = async(req, res, next) => {
+    try {
+        const productId = req.params.id;
+        const product = await Product.findByPk(productId);
+        res.render('shop/product-detail', {
+            pageTitle: 'Product detail',
+            path: '/products',
+            product: product,
+        });
+    } catch (error) {
+        console.log(error);
+    }
+};
