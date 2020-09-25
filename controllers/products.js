@@ -1,20 +1,21 @@
 const Product = require('../models/product');
 
-exports.getShopView = (req, res, next) => {
-    Product.findAll()
-        .then((products) => {
-            res.render('shop', {
-                prods: products,
-                pageTitle: 'Shop',
-                path: '/',
-                hasProducts: products.length > 0,
-                activeShop: true,
-                productCSS: true
-            });
-        })
-        .catch(error => {
-            console.log(error);
+exports.getShopView = async(req, res, next) => {
+    const User = req.user;
+    try {
+        const products = await User.getProducts();
+        res.render('shop', {
+            prods: products,
+            pageTitle: 'Shop',
+            path: '/',
+            hasProducts: products.length > 0,
+            activeShop: true,
+            productCSS: true
         });
+
+    } catch (error) {
+        console.log(error);
+    }
 };
 
 exports.getAddProductView = (req, res, next) => {
@@ -28,52 +29,56 @@ exports.getAddProductView = (req, res, next) => {
     });
 };
 
-exports.addProduct = (req, res, next) => {
+exports.addProduct = async(req, res, next) => {
+    const User = req.user;
     const title = req.body.title;
     const imageUrl = req.body.imageUrl;
     const price = +req.body.price;
     const description = req.body.description;
 
-    Product.create({
+    try {
+        await User.createProduct({
             title: title,
             imageUrl: imageUrl,
             price: price,
             description: description,
-        })
-        .then(saved => {
-            res.redirect('/admin/products');
-        })
-        .catch(error => {
-            console.log(error);
         });
+        res.redirect('/admin/products');
+
+    } catch (error) {
+        console.log(error);
+    }
+
 };
 
-exports.getProductsView = (req, res, next) => {
-    Product.findAll()
-        .then(products => {
-            res.render('admin/products', {
-                prods: products,
-                pageTitle: 'Admin Products',
-                path: '/admin/products',
-            });
+exports.getProductsView = async(req, res, next) => {
+    const User = req.user;
+
+    try {
+        const products = await User.getProducts();
+        res.render('admin/products', {
+            prods: products,
+            pageTitle: 'Admin Products',
+            path: '/admin/products',
         });
+    } catch (error) {
+        console.log(error);
+    }
+
 };
 
-exports.deleteProduct = (req, res, next) => {
+exports.deleteProduct = async(req, res, next) => {
     const productId = +req.params.id;
-    Product.destroy({
-        where: {
-            id: productId,
-        }
-    }).then(
-        response => {
-            res.redirect('/admin/products');
-        }
-    ).catch(
-        error => {
-            console.log(error);
-        }
-    );
+    const User = req.user;
+    try {
+        const product = await User.getProducts({ where: { id: productId } });
+        await User.removeProduct(product);
+
+        res.redirect('/admin/products');
+
+    } catch (error) {
+        console.log(error);
+    }
 };
 
 exports.getEditProductView = (req, res, next) => {
@@ -122,8 +127,9 @@ exports.editProduct = (req, res, next) => {
 };
 
 exports.productsList = async(req, res, next) => {
+    const User = req.user;
     try {
-        const products = await Product.findAll();
+        const products = await User.getProducts();
         res.render('shop/product-list', {
             pageTitle: 'Products',
             path: '/products',
