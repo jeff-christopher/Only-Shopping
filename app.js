@@ -1,9 +1,4 @@
 /**
- * Temporal
- */
-const User = require('./models/user');
-
-/**
  * Core node packages 
  */
 const path = require('path');
@@ -21,6 +16,14 @@ const sequelize = require('./util/database');
 const app = express();
 
 /**
+ * My models
+ */
+const User = require('./models/user');
+const Product = require('./models/product');
+const Cart = require('./models/cart');
+const CartItem = require('./models/cart-item');
+
+/**
  * Html templating engine configuration
  */
 app.set('view engine', 'ejs');
@@ -33,7 +36,6 @@ const errorController = require('./controllers/error');
  */
 const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
-const Product = require('./models/product');
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
@@ -57,8 +59,15 @@ app.use(errorController.get404View);
  * Define relations between models
  */
 
+//User -> Product
 Product.belongsTo(User, { constraints: true, onDelete: 'CASCADE' });
 User.hasMany(Product);
+//User -> Cart -> Products (Cart-items)
+User.hasOne(Cart);
+Cart.belongsTo(User);
+Product.belongsToMany(Cart, { through: CartItem });
+Cart.belongsToMany(Product, { through: CartItem });
+
 
 /**
  * Sequilize sync
